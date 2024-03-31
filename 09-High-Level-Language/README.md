@@ -5,3 +5,9 @@ When the game starts, a snake with a length of 2 segments, each segment measurin
 At the beginning of the game, the user can specify the mode of play. Press 'e' to start in easy mode, where the snake moves slowly. Pressing 'h' initiates hard mode, where the snake moves very quickly. Pressing any other key will start the game in the default medium mode.
 
 At the end of each round, the user is asked if they want to play again. Pressing 'y' will start a new round, while pressing 'n' will exit the game.
+
+## Demo
+
+<div align="center">
+    <img src="../SnakeGame.gif"/>
+</div>
