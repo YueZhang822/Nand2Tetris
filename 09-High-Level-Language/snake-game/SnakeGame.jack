@@ -1,0 +1,234 @@
+/**
+ * Implements the Snake game.
+ * When the game starts, a snake with a length of 2 segments, 
+ * each segment measuring 8x8 pixels, appears on the screen, 
+ * along with food represented as a circle with a radius of 8 pixels. 
+ * The user controls the snake's movement direction using the up, down, 
+ * left, and right arrow keys on the keyboard. The goal is to maneuver 
+ * the snake towards the food. Consuming the food allows the snake to 
+ * grow longer. The player must avoid collisions with the walls and the 
+ * snake's own body to continue progressing in the game.
+ */
+
+class SnakeGame {
+    field Snake snake;
+    field Food food;
+    field int round, score, bestScore;
+    field int mode;    // the difficulty of the game
+
+    /** Constructs a new Snake Game. */
+    constructor SnakeGame new() {
+        let round = 0;
+        let bestScore = 0;
+        let mode = 2;    // initialize the game in default medium difficulty
+        return this;
+    }
+
+    /** Method of runing the game. */
+    method void run() {
+        var boolean inGame;      // indicating if the game is continuing
+        let inGame = true;       // initially the game is continuing
+
+        do initializeGame();    // initialize a new game
+        while (inGame) {
+            do Screen.clearScreen();
+            do runOneRound();    // run one round of the game
+            let inGame = checkPlayAgain();    // ask the user to continue or not
+        }
+        do renderEnd();    // render the goodbye screen if user choose to stop
+        return;
+    }
+
+    /** Method to initialize the setting of a new game. */
+    method void initializeGame() {
+        var int key, seed;
+        let key = 0;
+        let seed = 0;
+
+        do renderHomepage();
+
+        // generate a unique random seed
+        while (~key) {
+            let seed = seed + 1;
+            if (seed = 32767) {
+                let seed = 0;
+            }
+            let key = Keyboard.keyPressed();
+        }
+
+        // setting the difficulty of the game base on user input
+        // 1-easy, 2-medium(default), 3-hard
+        if ((key = 69) | (key = 101)) {let mode = 1;}    // Easy mode
+        if ((key = 72) | (key = 104)) {let mode = 3;}    // Hard mode
+
+        do Random.setSeed(seed);    // set random seed
+        do Screen.clearScreen();
+        return;
+    }
+
+    /** Run one round of the game. Main logic of the game. */
+    method void runOneRound() {
+        var char key;            // the key being pressed
+        var boolean gameOver;    // the exit condition of the round
+        let gameOver = false;    // initially the exit condition is false
+        let round = round + 1;
+
+        do initializeComponents();    // initialize components for this round
+        while (~gameOver) {
+            let key = Keyboard.keyPressed();
+            do snake.changeDirection(key);    // change snake direction based on key
+            let gameOver = snake.checkCollision();    // check if the round comes to an end
+
+            if (~gameOver) {
+                if (snake.hitFood(food)) {      // if hit food
+                    let score = score + 1;      // increase score by 1
+                    do snake.grow();            // make snake grow in length
+                    do food.placeRandomly();    // place a new food randomly
+                }
+                if (~(snake.hitFood(food))) {   // if not hit food
+                    do snake.move();    // simply move the snake
+                }
+            let bestScore = Math.max(score, bestScore);    // update bestscore
+            do renderInGame();    // render in game screen
+            }
+        }
+        do renderGameOver();      // render game over screen
+        return;
+    }
+
+    /** Initialize the components of the game. */
+    method void initializeComponents() {
+        // create a snake and food
+        let snake = Snake.new(128, 128, 2, 8);    // x, y position, length, size
+        let food = Food.new(snake, 8);    // current snake, diameter of the circle
+        let score = 0;    // initialize the score to 0
+        return;
+    }
+
+    /** Method to check if a new round will begin. */
+    method boolean checkPlayAgain() {
+        var int key;
+        let key = 0;
+
+        while ((~ (key = 89)) & (~ (key = 78))) {
+            let key = Keyboard.keyPressed();
+        }
+        if (key = 89) {
+            return true;    // if y is pressed, continnue
+        }
+        if (key = 78) {
+            return false;   // if n is pressed, exit
+        }
+        return true;
+    }
+
+    /** The template of rendering screen at the beginning of a game. */
+    method void renderHomepage() {
+        var String string;
+
+        // display Welcome message
+        do Output.moveCursor(7, 20);
+        let string = "Welcome to Snake Game!";
+        do Output.printString(string);
+        do string.dispose();
+
+        // display instruction to start the game
+        do Output.moveCursor(9, 20);
+        let string = "Press a key to start!";
+        do Output.printString(string);
+        do string.dispose();
+
+        // display instruction to specify the difficulty
+        do Output.moveCursor(12, 25);
+        let string = "Easy Mode: e";
+        do Output.printString(string);
+        do string.dispose();
+
+        do Output.moveCursor(14, 25);
+        let string = "Hard Mode: h";
+        do Output.printString(string);
+        do string.dispose();
+
+        do Output.moveCursor(16, 25);
+        let string = "Default: any key";
+        do Output.printString(string);
+        do string.dispose();
+        return;
+    }
+
+    /** The template of rendering screen when the game continues. */
+    method void renderInGame() {
+        var String string;
+
+        do snake.draw();
+        do food.draw();
+        do Sys.wait(100 - (25 * mode));   // speed corresponds to mode (difficulty)
+
+        // display round and score infomation
+        do Output.moveCursor(22, 10);
+        let string = "ROUND: ";
+        do Output.printString(string);
+        do string.dispose();
+        do Output.printInt(round);
+
+        do Output.moveCursor(22, 25);
+        let string = "SCORE: ";
+        do Output.printString(string);
+        do string.dispose();
+        do Output.printInt(score);
+
+        do Output.moveCursor(22, 40);
+        let string = "BEST SCORE: ";
+        do Output.printString(string);
+        do string.dispose();
+        do Output.printInt(bestScore);
+        return;
+    }
+
+    /** The template of rendering screen when a round comes to an end. */
+    method void renderGameOver() {
+        var String string;
+
+        // display game over message and final score
+        do Screen.clearScreen();
+        do Output.moveCursor(10, 11);
+        let string = "Game Over!  Final Score: ";
+        do Output.printString(string);
+        do string.dispose();
+        do Output.printInt(score);
+
+        do Output.moveCursor(10, 39);
+        let string = "Best Score: ";
+        do Output.printString(string);
+        do string.dispose();
+        do Output.printInt(bestScore);
+        do Output.moveCursor(12, 25);
+
+        // ask if the user want to play a new round
+        let string = "Play Again? (y/n)";
+        do Output.printString(string);
+        do string.dispose();
+        do Sys.wait(500);
+        return;
+    }
+
+    /** The template of rendering screen when the whole game is over. */
+    method void renderEnd() {
+        var String string;
+
+        do Screen.clearScreen();
+        do Output.moveCursor(11, 22);
+        let string = "Thank you for playing!";
+        do Output.printString(string);
+        do string.dispose();
+        return;
+    }
+
+    /** Dispose the game. */
+    method void dispose() {
+        do snake.dispose();
+        do food.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+}

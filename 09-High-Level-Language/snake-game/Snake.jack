@@ -1,0 +1,168 @@
+/** Represents the snake. */
+
+class Snake {
+    field int headX, headY;    // x,y coordinate of the top-left pixel of snake head
+    field int length, size;    // length and size of the snake
+    field Array segments;      // array of Segment objects
+    field int direction;       // direction of the snake is moving
+
+    /** Constructs a new snake. */
+    constructor Snake new(int Ax, int Ay, int Alen, int Asize) {
+        let headX = Ax;
+        let headY = Ay;
+        let length = Alen;
+        let size = Asize;
+        let direction = 2;     // 0-left, 1-up, 2-right, 3-down
+        let segments = Array.new(length);
+        do initializeSegments();    // initialize the body of the snake
+        return this;
+    }
+
+    /** Method to initialize the body segments of the snake. */
+    method void initializeSegments() {
+        var int i, diffX;
+        let i = 0;
+
+        // each length of body is a Segment
+        // initialize body segment by segment
+        while (i < length) {
+            let diffX = Math.multiply(i, size);
+            let segments[i] = Segment.new(headX - diffX, headY, size);
+            let i = i + 1;
+        }
+        return;
+    }
+
+    /** Method to change the moving direction. */
+    /** 0-left, 1-up, 2-right, 3-down. */
+    method void changeDirection(int key) {
+        if ((key = 130) & (~ (direction = 2))) {let direction = 0;}    // left
+        if ((key = 131) & (~ (direction = 3))) {let direction = 1;}    // up
+        if ((key = 132) & (~ (direction = 0))) {let direction = 2;}    // right
+        if ((key = 133) & (~ (direction = 1))) {let direction = 3;}    // down
+
+        // Update the head position base on direction
+        if (direction = 0) {let headX = headX - size;}
+        if (direction = 1) {let headY = headY - size;}
+        if (direction = 2) {let headX = headX + size;}
+        if (direction = 3) {let headY = headY + size;}
+        return;
+    }
+
+    /** Method to check if the snake collides with wall or its body */
+    method boolean checkCollision() {
+        var int i;
+        var Segment seg;
+
+        // check collision with its own body
+        let i = 0;
+        while (i < length) {
+            let seg = segments[i];
+            if ((headX = seg.getX()) & (headY = seg.getY())) {
+                return true;
+            }
+            let i = i + 1;
+        }
+
+        // check collision with wall
+        return ((headX < 0) | (headX > (512 - size)) |(headY < 0) | (headY > (256 - size)));
+    } 
+
+    /** Method to check if the snake eats a food. */
+    method boolean hitFood(Food food) {
+        return food.collisionWithSnake();
+    }
+
+    /** Method to grow the length of snake */
+    method void grow() {
+        var int i;
+        var Array newSegments;
+        
+        do erase();    // erase the old snake
+        let length = length + 1;    // increment length by 1
+        let newSegments = Array.new(length);
+        let newSegments[0] = Segment.new(headX, headY, size);
+
+        let i = 1;
+        while (i < length) {
+            let newSegments[i] = segments[i-1];
+            let i = i + 1;
+        }
+
+        do Memory.deAlloc(segments);    // free memory
+        let segments = newSegments;
+        return;
+    }
+
+    /** Method to move the snake. */
+    method void move() {
+        var int i;
+        var Segment seg, neighborSeg;
+        let i = length - 1;
+
+        do erase();    // erase the old snake
+
+        // move segment by segment
+        while (i > 0) {
+            let seg = segments[i];
+            let neighborSeg = segments[i-1];
+            do seg.setX(neighborSeg.getX());
+            do seg.setY(neighborSeg.getY());
+            let i = i - 1;
+        }
+
+        // move the head segment
+        let seg = segments[0];
+        do seg.setX(headX);
+        do seg.setY(headY);
+        return;
+    }
+
+    /** Method to draw the snake on the screen. */
+    method void draw() {
+        var int i;
+        var Segment seg;
+        let i = 0;
+        while (i < length) {
+            let seg = segments[i];
+            do seg.draw();    // draw each segment
+            let i = i + 1;
+        }
+        return;
+    }
+
+    /** Method to erase the snake on the screen. */
+    method void erase() {
+        var int i;
+        var Segment seg;
+        let i = 0;
+        while (i < length) {
+            let seg = segments[i];
+            do seg.erase();    // erase each segment
+            let i = i + 1;
+        }
+        return;
+    }
+    
+    /** Method to get the x coordinate of the top-left pixel of head. */
+    method int getX() {
+        return headX;
+    }
+
+     /** Method to get the y coordinate of the top-left pixel of head. */
+    method int getY() {
+        return headY;
+    }
+
+    /** Method to get segments of snake body. */
+    method Array getSegments() {
+        return segments;
+    }
+
+    /** Method to dispose the snake. */
+    method void dispose() {
+        do segments.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+}

@@ -1,0 +1,73 @@
+/** Represents the food item. */
+
+class Food {
+    field int x, y;    // coordinate of the center pixel
+    field int radius;    // radius of the circle
+    field Snake snake;   // related snake
+
+    /** Constructs a new food of a given coordinate and diameter. */
+    constructor Food new(Snake Asnake, int Asize) {
+        let x = 100;
+        let y = 100;
+        let radius = Asize / 2;
+        let snake = Asnake;
+        do placeRandomly();    // place the food at a random place
+        return this;
+    }
+
+    /** Method to randomly place the item. */
+    method void placeRandomly() {
+        do erase();    // erase the old food
+        // update the item's position
+        let x = Random.randn(radius, 511-radius);
+        let y = Random.randn(radius, 255-radius);
+        while (collisionWithSnake()) {    // loacation of food can not collide with snake
+            let x = Random.randn(radius, 511-radius);
+            let y = Random.randn(radius, 255-radius);
+        }
+        return;
+    }
+
+    /** Method to check if food collide with snake. */
+    method boolean collisionWithSnake() {
+        var Segment seg;
+        var Array segments;
+        let segments = snake.getSegments();
+        let seg = segments[0];
+
+        // the center has to be inside the snake head segment for it to be eaten
+        if ((x < seg.getX()) | (x > (seg.getX() + seg.getSize() - 1))) {return false;}
+        if ((y < seg.getY()) | (y > (seg.getY() + seg.getSize() - 1))) {return false;}
+        return true;
+    }
+
+    /** Method to draw the food. */
+    method void draw() {
+        do Screen.setColor(true);
+        do Screen.drawCircle(x, y, radius);
+        return;
+    }
+
+    /** Method to draw the food. */
+    method void erase() {
+        do Screen.setColor(false);
+        do Screen.drawCircle(x, y, radius);
+        return;
+    }
+
+    /** Method to get the x coordinate of the center pixel. */
+    method int getX() {
+        return x;
+    }
+
+    /** Method to get the y coordinate of the center pixel. */
+    method int getY() {
+        return y;
+    }
+
+    /** Method to dispose the food. */
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+}

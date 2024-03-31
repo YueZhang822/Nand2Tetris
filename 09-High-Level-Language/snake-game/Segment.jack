@@ -1,0 +1,61 @@
+/** Represents a single segment of the snake body. */
+
+class Segment{
+    field int startX, startY;   // coordinate of the top-left pixel
+    field int size;    // size of the segment in pixels
+
+    /** Constructs a new square segment of a given coordinate and size. */
+    constructor Segment new(int Ax, int Ay, int Asize){
+        let startX = Ax;
+        let startY = Ay;
+        let size = Asize;
+        return this;
+    }
+
+    /** Method to draw one segment. */
+    method void draw() {
+        do Screen.setColor(true);
+        do Screen.drawRectangle(startX, startY, startX + size - 1, startY + size - 1);
+        return;
+    }
+
+    /** Method to erase one segment. */
+    method void erase() {
+        do Screen.setColor(false);
+        do Screen.drawRectangle(startX, startY, startX + size - 1, startY + size - 1);
+        return;
+    }
+
+    /** Method to change the x coordinate of the top-left pixel. */
+    method void setX(int newX) {
+        let startX = newX;
+        return;
+    }
+
+    /** Method to change the y coordinate of the top-left pixel. */
+    method void setY(int newY) {
+        let startY = newY;
+        return;
+    }
+
+    /** Method to get the x coordinate of the top-left pixel. */
+    method int getX() {
+        return startX;
+    }
+
+    /** Method to get the y coordinate of the top-left pixel. */
+    method int getY() {
+        return startY;
+    }
+
+    /** Method to get the size. */
+    method int getSize() {
+        return size;
+    }
+
+    /** Method to dispose a segment. */
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+}

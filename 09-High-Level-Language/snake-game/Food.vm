@@ -1,0 +1,158 @@
+function Food.new 0
+push constant 4
+call Memory.alloc 1
+pop pointer 0
+push constant 100
+pop this 0
+push constant 100
+pop this 1
+push argument 1
+push constant 2
+call Math.divide 2
+pop this 2
+push argument 0
+pop this 3
+push pointer 0
+call Food.placeRandomly 1
+pop temp 0
+push pointer 0
+return
+function Food.placeRandomly 0
+push argument 0
+pop pointer 0
+push pointer 0
+call Food.erase 1
+pop temp 0
+push this 2
+push constant 511
+push this 2
+sub
+call Random.randn 2
+pop this 0
+push this 2
+push constant 255
+push this 2
+sub
+call Random.randn 2
+pop this 1
+label WHILE_EXP0
+push pointer 0
+call Food.collisionWithSnake 1
+not
+if-goto WHILE_END0
+push this 2
+push constant 511
+push this 2
+sub
+call Random.randn 2
+pop this 0
+push this 2
+push constant 255
+push this 2
+sub
+call Random.randn 2
+pop this 1
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function Food.collisionWithSnake 2
+push argument 0
+pop pointer 0
+push this 3
+call Snake.getSegments 1
+pop local 1
+push constant 0
+push local 1
+add
+pop pointer 1
+push that 0
+pop local 0
+push this 0
+push local 0
+call Segment.getX 1
+lt
+push this 0
+push local 0
+call Segment.getX 1
+push local 0
+call Segment.getSize 1
+add
+push constant 1
+sub
+gt
+or
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+return
+label IF_FALSE0
+push this 1
+push local 0
+call Segment.getY 1
+lt
+push this 1
+push local 0
+call Segment.getY 1
+push local 0
+call Segment.getSize 1
+add
+push constant 1
+sub
+gt
+or
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 0
+return
+label IF_FALSE1
+push constant 0
+not
+return
+function Food.draw 0
+push argument 0
+pop pointer 0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+push this 0
+push this 1
+push this 2
+call Screen.drawCircle 3
+pop temp 0
+push constant 0
+return
+function Food.erase 0
+push argument 0
+pop pointer 0
+push constant 0
+call Screen.setColor 1
+pop temp 0
+push this 0
+push this 1
+push this 2
+call Screen.drawCircle 3
+pop temp 0
+push constant 0
+return
+function Food.getX 0
+push argument 0
+pop pointer 0
+push this 0
+return
+function Food.getY 0
+push argument 0
+pop pointer 0
+push this 1
+return
+function Food.dispose 0
+push argument 0
+pop pointer 0
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return
